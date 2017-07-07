@@ -1,6 +1,3 @@
-'''@author = 'sajjas'
-@date = '6/July/2017' '''
-
 # !/usr/bin/python
 
 from ncclient import manager
