@@ -48,9 +48,11 @@ def connect(host, port, user, password):
         # Get session parameters
         print 'session-id:', sessionId
         print 'client capabilities:'
+        print '####################'
         for i in conn.client_capabilities:
             print ' ', i
         print 'server capabilities:'
+        print '####################'
         for i in conn.server_capabilities:
             print ' ', i
         # return this conn object to process edit and get operations to __main__ method
@@ -61,16 +63,17 @@ def connect(host, port, user, password):
 
 # Method will be called while locking the data store
 def datastore_lock(datastore):
-    print "locking the datastore :" + datastore
+    print '\nlocking the datastore :' + datastore
     conn.lock(datastore)
 
 # Method will be called while unlocking the data store
 def datastore_unlock(datastore):
-    print "unlocking the datastore :" + datastore
+    print '\nunlocking the datastore :' + datastore
     conn.unlock(datastore)
 
-def get_config_intf_description(datastore, filterData):
-    print 'Retrieving interface description config using filter, please wait ...'
+def get_config_intf_description(datastore, filterData, containername):
+    print 'Retrieving config using filter from %s datastore for %s container, please wait ...' % (datastore, containername)
+    print '\n Request filterData :' + '\n' + filterData
     get_config_response = conn.get_config(source=datastore, filter=('subtree', filterData)).data_xml
     return get_config_response
 
@@ -79,9 +82,9 @@ def edit_config_intf_description():
     operations = ["merge", "remove", "replace", "delete", "create"]
     dataStores = ["running", "startup", "candidate"]
 
-
     for sheet_index in range(book.nsheets):
         sheet_index_number = book.sheet_by_index(sheet_index)
+
         for row in range(1, sheet_index_number.nrows):
             filterData = sheet_index_number.row(row)[0].value
             configData = sheet_index_number.row(row)[1].value
@@ -99,23 +102,32 @@ def edit_config_intf_description():
                     if datastore == "candidate":
                         conn.copy_config("running", "candidate")
                     for operation in operations:
-                                # Perform Edit operation based on datastore and operation
-                        edit_config_response = conn.edit_config(target=datastore, config=configData % operation)
-                        print "\n edit_config" + " operation: " + operation + " datastore: " + datastore
-                        print edit_config_response
-                        time.sleep(2)
-                        # Performing Get-config operation to check the edit-config data was successfully configured or not
-                        get_config_response_output = get_config_intf_description(datastore, filterData)
-                        print "\n get_config" + " after operation: " + operation + " datastore: " + datastore
-                        print  get_config_response_output
-                        time.sleep(2)
-                        telnet_dut(clicommandData)
+                        try:
+                            # Perform Edit operation based on datastore and operation
+                            dataConfig = configData % operation
+                            print '###################################################################'
+                            print "\n edit_config" + " operation: " + operation + " on datastore: " + datastore + " on container: " + sheet_index_number.name
+                            print '\n Request configData :' + '\n' + dataConfig
+                            edit_config_response = conn.edit_config(target=datastore, config=dataConfig)
+                            print '\n Response from server for configData :' + '\n' + str(edit_config_response)
+                            time.sleep(2)
+                            # Performing Get-config operation to check the edit-config data was successfully configured or not
+                            print "\n get_config" + " after operation: " + operation + " on datastore: " + datastore + " on container: " + sheet_index_number.name
+                            get_config_response_output = get_config_intf_description(datastore, filterData, sheet_index_number.name)
+                            print '\n Response from server for filterData :' + '\n' + get_config_response_output
+                            print '###################################################################'
+                            time.sleep(2)
+                            telnet_dut(clicommandData)
+
+                        except errors.NCClientError as e:
+                            print '\n Response from server :' + '\n' + str(e.message)
+                            pass
                     # unlock the datastore after doing all the operations
                     datastore_unlock(datastore)
 
                 except errors.NCClientError as e:
-                    print "This is my custom message", e.message
-                pass
+                    print e.message
+                    pass
 
 def telnet_dut(clicommandData):
     tn = telnetlib.Telnet("10.130.170.252")
@@ -131,11 +143,14 @@ def telnet_dut(clicommandData):
     tn.read_until("#")
     tn.write(str(clicommandData)+"\n")
     clicommmandOutput = tn.read_until("#")
-    print clicommmandOutput
+    print '#############################'
+    print "CLI command : %s" % clicommandData
+    print "\nCLI output :", clicommmandOutput
+    print '#############################'
 
 if __name__ == '__main__':
     conn = connect("10.130.170.252", 830, "admin", "")
-    print "Going to execute EDIT-conifg and GET-config operations......!!!"
+    print "\nGoing to perform Netconf Edit-conifg and Get-config operations......!!!"
     if conn.connected:
         edit_config_intf_description()
 
