@@ -7,6 +7,7 @@ import hostinfo
 import tlnt
 import time
 import re
+
 conn=None
 sessionId=None
 operations=None
@@ -75,7 +76,7 @@ class TestUseCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-        telnet=tlnt.telnet(host = hostinfo.telnethost, port = hostinfo.telnetport)
+        telnet=tlnt.telnet(host=hostinfo.telnethost, port=hostinfo.telnetport)
         unittest.main() 
         conn.close_session()
         telnet.close()
