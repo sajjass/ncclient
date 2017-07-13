@@ -4,17 +4,24 @@ from ncclient import manager
 from ncclient.transport import errors
 import sys, time, telnetlib
 from xlrd import open_workbook
+from tempfile import TemporaryFile
+from xlwt import Workbook
 
 global conn, sessionId
 global operations, dataStores
 global filterData, configData, book, clicommandData, outputfilterData
+global row_count_to_append_result
+
+row_count_to_append_result = 0
 
 book = open_workbook("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/basics_python\python-excel\RPC_XML_Data.xlsx")
+write_to_book = Workbook()
 
 def connect(host, port, user, password):
     global conn, sessionId
     global operations, dataStores
     global filterData, configData, book, clicommandData, outputfilterData
+    global row_count_to_append_result
 
     """
         filterData = '''
@@ -84,6 +91,7 @@ def edit_config_intf_description():
 
     for sheet_index in range(book.nsheets):
         sheet_index_number = book.sheet_by_index(sheet_index)
+        row_count_to_append_result = 0
 
         for row in range(1, sheet_index_number.nrows):
             filterData = sheet_index_number.row(row)[0].value
@@ -103,6 +111,7 @@ def edit_config_intf_description():
                         conn.copy_config("running", "candidate")
                     for operation in operations:
                         try:
+                            row_count_to_append_result = row_count_to_append_result + 1
                             # Perform Edit operation based on datastore and operation
                             dataConfig = configData % operation
                             print '###################################################################'
@@ -117,7 +126,9 @@ def edit_config_intf_description():
                             print '\n Response from server for filterData :' + '\n' + get_config_response_output
                             print '###################################################################'
                             time.sleep(2)
-                            telnet_dut(clicommandData)
+                            telnet_cli_output = telnet_dut(clicommandData)
+
+                            write_results_to_sheet(sheet_index_number, sheet_index_number.name, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output)
 
                         except errors.NCClientError as e:
                             print '\n Response from server :' + '\n' + str(e.message)
@@ -128,6 +139,19 @@ def edit_config_intf_description():
                 except errors.NCClientError as e:
                     print e.message
                     pass
+def write_results_to_sheet(sheetnum, sheetname, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output):
+    if write_to_book.get_sheet(sheetnum).name != sheetname:
+        sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
+    row = sheet.row(row_count_to_append_result)
+    row.write(0, dataConfig)
+    row.write(1, edit_config_response)
+    row.write(2, filterData)
+    row.write(3, get_config_response_output)
+    row.write(4, clicommandData)
+    row.write(5, telnet_cli_output)
+
+    book.save("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/basics_python\python-excel\RPC_XML_Data_Test_Results.xlsx")
+    book.save(TemporaryFile())
 
 def telnet_dut(clicommandData):
     tn = telnetlib.Telnet("10.130.170.252")
@@ -147,6 +171,7 @@ def telnet_dut(clicommandData):
     print "CLI command : %s" % clicommandData
     print "\nCLI output :", clicommmandOutput
     print '#############################'
+    return clicommmandOutput
 
 if __name__ == '__main__':
     conn = connect("10.130.170.252", 830, "admin", "")
