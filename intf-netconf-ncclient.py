@@ -129,10 +129,15 @@ def edit_config_intf_description():
                             time.sleep(2)
                             telnet_cli_output = telnet_dut(clicommandData)
 
-                            write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output)
+                            write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result,\
+                                                   dataConfig, edit_config_response, filterData,\
+                                                   get_config_response_output, clicommandData, telnet_cli_output)
 
                         except errors.NCClientError as e:
                             print '\n Response from server :' + '\n' + str(e.message)
+                            write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result,\
+                                                   dataConfig, str(e.message), filterData,\
+                                                   get_config_response_output = "None", clicommandData = "None", telnet_cli_output = "None")
                             pass
                     # unlock the datastore after doing all the operations
                     datastore_unlock(datastore)
