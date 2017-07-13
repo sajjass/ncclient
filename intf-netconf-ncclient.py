@@ -10,18 +10,19 @@ from xlwt import Workbook
 global conn, sessionId
 global operations, dataStores
 global filterData, configData, book, clicommandData, outputfilterData
-global row_count_to_append_result
+global row_count_to_append_result, active_sheet_name, adding_sheet
 
 row_count_to_append_result = 0
+active_sheet_name = ""
 
-book = open_workbook("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/basics_python\python-excel\RPC_XML_Data.xlsx")
+book = open_workbook("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/ncclient\RPC_XML_Data.xlsx")
 write_to_book = Workbook()
 
 def connect(host, port, user, password):
     global conn, sessionId
     global operations, dataStores
     global filterData, configData, book, clicommandData, outputfilterData
-    global row_count_to_append_result
+    global row_count_to_append_result, active_sheet_name
 
     """
         filterData = '''
@@ -128,7 +129,7 @@ def edit_config_intf_description():
                             time.sleep(2)
                             telnet_cli_output = telnet_dut(clicommandData)
 
-                            write_results_to_sheet(sheet_index_number, sheet_index_number.name, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output)
+                            write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output)
 
                         except errors.NCClientError as e:
                             print '\n Response from server :' + '\n' + str(e.message)
@@ -140,18 +141,29 @@ def edit_config_intf_description():
                     print e.message
                     pass
 def write_results_to_sheet(sheetnum, sheetname, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output):
-    if write_to_book.get_sheet(sheetnum).name != sheetname:
-        sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
-    row = sheet.row(row_count_to_append_result)
-    row.write(0, dataConfig)
-    row.write(1, edit_config_response)
-    row.write(2, filterData)
-    row.write(3, get_config_response_output)
-    row.write(4, clicommandData)
-    row.write(5, telnet_cli_output)
+    try:
+        adding_sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
 
-    book.save("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/basics_python\python-excel\RPC_XML_Data_Test_Results.xlsx")
-    book.save(TemporaryFile())
+        row = adding_sheet.row(row_count_to_append_result)
+        row.write(0, dataConfig)
+        row.write(1, str(edit_config_response))
+        row.write(2, filterData)
+        row.write(3, str(get_config_response_output))
+        row.write(4, clicommandData)
+        row.write(5, telnet_cli_output)
+    except:
+        adding_sheet = write_to_book.get_sheet(sheetnum)
+
+        row = adding_sheet.row(row_count_to_append_result)
+        row.write(0, dataConfig)
+        row.write(1, str(edit_config_response))
+        row.write(2, filterData)
+        row.write(3, str(get_config_response_output))
+        row.write(4, clicommandData)
+        row.write(5, telnet_cli_output)
+
+    write_to_book.save("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/ncclient\RPC_XML_Data_Test_Results.xls")
+    write_to_book.save(TemporaryFile())
 
 def telnet_dut(clicommandData):
     tn = telnetlib.Telnet("10.130.170.252")
