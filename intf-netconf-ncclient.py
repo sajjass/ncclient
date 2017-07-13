@@ -127,16 +127,25 @@ def edit_config_intf_description():
                             print '\n Response from server for filterData :' + '\n' + get_config_response_output
                             print '###################################################################'
                             time.sleep(2)
-                            telnet_cli_output = telnet_dut(clicommandData)
 
+                            # telnet cli output check is required when datastore is running
+                            if datastore == "running":
+                                telnet_cli_output = telnet_dut(clicommandData)
+
+                                # send the data to form into excel file
+                                write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result, \
+                                                       dataConfig, edit_config_response, filterData, \
+                                                       get_config_response_output, clicommandData, telnet_cli_output)
+
+                            # send the data to form into excel file
                             write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result,\
                                                    dataConfig, edit_config_response, filterData,\
-                                                   get_config_response_output, clicommandData, telnet_cli_output)
+                                                   get_config_response_output, clicommandData = "None", telnet_cli_output = "None")
 
                         except errors.NCClientError as e:
                             print '\n Response from server :' + '\n' + str(e.message)
                             write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result,\
-                                                   dataConfig, str(e.message), filterData,\
+                                                   dataConfig, str(e.message), filterData = "None",\
                                                    get_config_response_output = "None", clicommandData = "None", telnet_cli_output = "None")
                             pass
                     # unlock the datastore after doing all the operations
@@ -156,7 +165,7 @@ def write_results_to_sheet(sheetnum, sheetname, row_count_to_append_result, data
         row.write(3, str(get_config_response_output))
         row.write(4, clicommandData)
         row.write(5, telnet_cli_output)
-        
+
     # Here Exception will be caught when "write_to_book.add_sheet" is trying to add already existing sheet.
     # So instead of adding it, we are calling that existing sheet to performing our operations.
     except:
