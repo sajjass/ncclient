@@ -168,23 +168,23 @@ def write_results_to_sheet(operation, datastore, node_name, sheetnum, sheetname,
         adding_sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
 
         adding_sheet.write(0, 0, "DataStore",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 1, "Node",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 2, "Operation",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 3, "dataConfig_Request_XML",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 4, "dataConfig_Response_From_Server",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 5, "filterData_Request_XML",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 6, "filterData_Response_From_Server",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 7, "clicommandData",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 8, "telnetCliOutput",
-                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
+                         Style.easyxf('pattern: pattern solid, fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
 
         style = easyxf('borders: left thin, right thin, top thin, bottom thin;' 'align: wrap yes')
 
