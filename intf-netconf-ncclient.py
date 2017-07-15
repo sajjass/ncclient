@@ -5,7 +5,8 @@ from ncclient.transport import errors
 import sys, time, telnetlib
 from xlrd import open_workbook
 from tempfile import TemporaryFile
-from xlwt import Workbook
+from xlwt import Workbook, easyxf
+import xlwt
 
 global conn, sessionId
 global operations, dataStores
@@ -92,13 +93,15 @@ def edit_config_intf_description():
 
     for sheet_index in range(book.nsheets):
         sheet_index_number = book.sheet_by_index(sheet_index)
+        # Initializing the number to 0. This value will be used to append the output date to Excel rows.
         row_count_to_append_result = 0
 
         for row in range(1, sheet_index_number.nrows):
-            filterData = sheet_index_number.row(row)[0].value
-            configData = sheet_index_number.row(row)[1].value
-            clioutputData = sheet_index_number.row(row)[2].value
-            clicommandData = sheet_index_number.row(row)[3].value
+            node_name = sheet_index_number.row(row)[0].value
+            filterData = sheet_index_number.row(row)[1].value
+            configData = sheet_index_number.row(row)[2].value
+            clioutputData = sheet_index_number.row(row)[3].value
+            clicommandData = sheet_index_number.row(row)[4].value
 
             for datastore in dataStores:
                 try:
@@ -112,6 +115,7 @@ def edit_config_intf_description():
                         conn.copy_config("running", "candidate")
                     for operation in operations:
                         try:
+                            # Starting from row count 1. because row value 0 is left for headers.
                             row_count_to_append_result = row_count_to_append_result + 1
                             # Perform Edit operation based on datastore and operation
                             dataConfig = configData % operation
@@ -133,20 +137,22 @@ def edit_config_intf_description():
                                 telnet_cli_output = telnet_dut(clicommandData)
 
                                 # send the data to form into excel file
-                                write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result, \
+                                write_results_to_sheet(operation, datastore, node_name, sheet_index, sheet_index_number.name, row_count_to_append_result, \
                                                        dataConfig, edit_config_response, filterData, \
                                                        get_config_response_output, clicommandData, telnet_cli_output)
 
                             # send the data to form into excel file
-                            write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result,\
+                            write_results_to_sheet(operation, datastore, node_name, sheet_index, sheet_index_number.name, row_count_to_append_result,\
                                                    dataConfig, edit_config_response, filterData,\
                                                    get_config_response_output, clicommandData = "None", telnet_cli_output = "None")
 
                         except errors.NCClientError as e:
                             print '\n Response from server :' + '\n' + str(e.message)
-                            write_results_to_sheet(sheet_index, sheet_index_number.name, row_count_to_append_result,\
+                            write_results_to_sheet(operation, datastore, node_name, sheet_index, sheet_index_number.name, row_count_to_append_result,\
                                                    dataConfig, str(e.message), filterData = "None",\
                                                    get_config_response_output = "None", clicommandData = "None", telnet_cli_output = "None")
+
+                            # Eventhough exceptioin caugnt we wanted to rotate the for loop to continue with our requests
                             pass
                     # unlock the datastore after doing all the operations
                     datastore_unlock(datastore)
@@ -154,30 +160,68 @@ def edit_config_intf_description():
                 except errors.NCClientError as e:
                     print e.message
                     pass
-def write_results_to_sheet(sheetnum, sheetname, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output):
+
+def write_results_to_sheet(operation, datastore, node_name, sheetnum, sheetname, row_count_to_append_result, dataConfig, edit_config_response, filterData, get_config_response_output, clicommandData, telnet_cli_output):
     try:
         adding_sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
 
+        adding_sheet.row(0, 0, "DataStore",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 1, "Node",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 2, "Operation",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 3, "dataConfig_Request_XML",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 4, "dataConfig_Response_From_Server",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 5, "filterData_Request_XML",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 6, "filterData_Response_From_Server",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 7, "clicommandData",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+        adding_sheet.row(0, 8, "telnetCliOutput",
+                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+
+        style = easyxf('borders: left thin, right thin, top thin, bottom thin;')
+
+        adding_sheet.col(int(row_count_to_append_result) - 1).width = 15000
+        adding_sheet.row(int(row_count_to_append_result)).height_mismatch = 1
+        adding_sheet.row(int(row_count_to_append_result)).height = 3000
+
         row = adding_sheet.row(row_count_to_append_result)
-        row.write(0, dataConfig)
-        row.write(1, str(edit_config_response))
-        row.write(2, filterData)
-        row.write(3, str(get_config_response_output))
-        row.write(4, clicommandData)
-        row.write(5, telnet_cli_output)
+        row.write(0, datastore, style)
+        row.write(1, node_name, style)
+        row.write(2, operation, style)
+        row.write(3, dataConfig, style)
+        row.write(4, str(edit_config_response), style)
+        row.write(5, filterData, style)
+        row.write(6, str(get_config_response_output), style)
+        row.write(7, clicommandData, style)
+        row.write(8, telnet_cli_output, style)
 
     # Here Exception will be caught when "write_to_book.add_sheet" is trying to add already existing sheet.
     # So instead of adding it, we are calling that existing sheet to performing our operations.
     except:
         adding_sheet = write_to_book.get_sheet(sheetnum)
 
+        style = easyxf('borders: left thin, right thin, top thin, bottom thin;')
+
+        adding_sheet.col(int(row_count_to_append_result) - 1).width = 15000
+        adding_sheet.row(int(row_count_to_append_result)).height_mismatch = 1
+        adding_sheet.row(int(row_count_to_append_result)).height = 3000
+
         row = adding_sheet.row(row_count_to_append_result)
-        row.write(0, dataConfig)
-        row.write(1, str(edit_config_response))
-        row.write(2, filterData)
-        row.write(3, str(get_config_response_output))
-        row.write(4, clicommandData)
-        row.write(5, telnet_cli_output)
+        row.write(0, datastore, style)
+        row.write(1, node_name, style)
+        row.write(2, operation, style)
+        row.write(3, dataConfig, style)
+        row.write(4, str(edit_config_response), style)
+        row.write(5, filterData, style)
+        row.write(6, str(get_config_response_output), style)
+        row.write(7, clicommandData, style)
+        row.write(8, telnet_cli_output, style)
 
     write_to_book.save("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/ncclient\RPC_XML_Data_Test_Results.xls")
     write_to_book.save(TemporaryFile())
@@ -209,4 +253,5 @@ if __name__ == '__main__':
         edit_config_intf_description()
 
     # Make sure session is closed after finishing work
+    print "Closing the connection to Server...!!!"
     conn.close_session()
