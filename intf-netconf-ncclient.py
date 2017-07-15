@@ -133,18 +133,20 @@ def edit_config_intf_description():
                             time.sleep(2)
 
                             # telnet cli output check is required when datastore is running
-                            if datastore == "running":
+                            if datastore != "running":
+                                # send the data to form into excel file
+                                write_results_to_sheet(operation, datastore, node_name, sheet_index,
+                                                       sheet_index_number.name, row_count_to_append_result, dataConfig,
+                                                       edit_config_response, filterData, get_config_response_output,
+                                                       clicommandData="None", telnet_cli_output="None")
+                            else:
                                 telnet_cli_output = telnet_dut(clicommandData)
 
                                 # send the data to form into excel file
-                                write_results_to_sheet(operation, datastore, node_name, sheet_index, sheet_index_number.name, row_count_to_append_result, \
-                                                       dataConfig, edit_config_response, filterData, \
-                                                       get_config_response_output, clicommandData, telnet_cli_output)
-
-                            # send the data to form into excel file
-                            write_results_to_sheet(operation, datastore, node_name, sheet_index, sheet_index_number.name, row_count_to_append_result,\
-                                                   dataConfig, edit_config_response, filterData,\
-                                                   get_config_response_output, clicommandData = "None", telnet_cli_output = "None")
+                                write_results_to_sheet(operation, datastore, node_name, sheet_index,
+                                                       sheet_index_number.name, row_count_to_append_result, dataConfig,
+                                                       edit_config_response, filterData, get_config_response_output,
+                                                       clicommandData, telnet_cli_output)
 
                         except errors.NCClientError as e:
                             print '\n Response from server :' + '\n' + str(e.message)
@@ -165,23 +167,23 @@ def write_results_to_sheet(operation, datastore, node_name, sheetnum, sheetname,
     try:
         adding_sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
 
-        adding_sheet.row(0, 0, "DataStore",
+        adding_sheet.write(0, 0, "DataStore",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 1, "Node",
+        adding_sheet.write(0, 1, "Node",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 2, "Operation",
+        adding_sheet.write(0, 2, "Operation",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 3, "dataConfig_Request_XML",
+        adding_sheet.write(0, 3, "dataConfig_Request_XML",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 4, "dataConfig_Response_From_Server",
+        adding_sheet.write(0, 4, "dataConfig_Response_From_Server",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 5, "filterData_Request_XML",
+        adding_sheet.write(0, 5, "filterData_Request_XML",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 6, "filterData_Response_From_Server",
+        adding_sheet.write(0, 6, "filterData_Response_From_Server",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 7, "clicommandData",
+        adding_sheet.write(0, 7, "clicommandData",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
-        adding_sheet.row(0, 8, "telnetCliOutput",
+        adding_sheet.write(0, 8, "telnetCliOutput",
                          easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
 
         style = easyxf('borders: left thin, right thin, top thin, bottom thin;')
