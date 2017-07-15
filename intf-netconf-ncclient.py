@@ -6,7 +6,7 @@ import sys, time, telnetlib
 from xlrd import open_workbook
 from tempfile import TemporaryFile
 from xlwt import Workbook, easyxf
-import xlwt
+from xlwt import Style
 
 global conn, sessionId
 global operations, dataStores
@@ -168,25 +168,25 @@ def write_results_to_sheet(operation, datastore, node_name, sheetnum, sheetname,
         adding_sheet = write_to_book.add_sheet(sheetname, cell_overwrite_ok=True)
 
         adding_sheet.write(0, 0, "DataStore",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 1, "Node",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 2, "Operation",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 3, "dataConfig_Request_XML",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 4, "dataConfig_Response_From_Server",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 5, "filterData_Request_XML",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 6, "filterData_Response_From_Server",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 7, "clicommandData",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
         adding_sheet.write(0, 8, "telnetCliOutput",
-                         easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;'))
+                         Style.easyxf('pattern: fore_colour green;' 'borders: left thick, right thick, top thick, bottom thick;' 'font:height 500;' 'align: wrap yes'))
 
-        style = easyxf('borders: left thin, right thin, top thin, bottom thin;')
+        style = easyxf('borders: left thin, right thin, top thin, bottom thin;' 'align: wrap yes')
 
         adding_sheet.col(int(row_count_to_append_result) - 1).width = 15000
         adding_sheet.row(int(row_count_to_append_result)).height_mismatch = 1
@@ -208,7 +208,7 @@ def write_results_to_sheet(operation, datastore, node_name, sheetnum, sheetname,
     except:
         adding_sheet = write_to_book.get_sheet(sheetnum)
 
-        style = easyxf('borders: left thin, right thin, top thin, bottom thin;')
+        style = easyxf('borders: left thin, right thin, top thin, bottom thin;' 'align: wrap yes')
 
         adding_sheet.col(int(row_count_to_append_result) - 1).width = 15000
         adding_sheet.row(int(row_count_to_append_result)).height_mismatch = 1
