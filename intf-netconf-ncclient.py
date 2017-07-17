@@ -2,28 +2,29 @@
 
 from ncclient import manager
 from ncclient.transport import errors
-import sys, time, telnetlib
+import sys, os , time, telnetlib
 from xlrd import open_workbook
 from tempfile import TemporaryFile
 from xlwt import Workbook, easyxf
 from xlwt import Style
 
-global conn, sessionId
+global conn, sessionId, current_working_dir
 global operations, dataStores
 global filterData, configData, book, clicommandData, outputfilterData
 global row_count_to_append_result, active_sheet_name, adding_sheet
 
 row_count_to_append_result = 0
 active_sheet_name = ""
+current_working_dir = os.getcwd()
 
-book = open_workbook("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/ncclient\RPC_XML_Data.xlsx")
+book = open_workbook(current_working_dir + "\RPC_XML_Data.xlsx")
 write_to_book = Workbook()
 
 def connect(host, port, user, password):
     global conn, sessionId
     global operations, dataStores
     global filterData, configData, book, clicommandData, outputfilterData
-    global row_count_to_append_result, active_sheet_name
+    global row_count_to_append_result, active_sheet_name, adding_sheet
 
     """
         filterData = '''
@@ -225,7 +226,7 @@ def write_results_to_sheet(operation, datastore, node_name, sheetnum, sheetname,
         row.write(7, clicommandData, style)
         row.write(8, telnet_cli_output, style)
 
-    write_to_book.save("C:\Users\ss015282\Box Sync\PycharmProjects\Github\/ncclient\RPC_XML_Data_Test_Results.xls")
+    write_to_book.save(current_working_dir + "\RPC_XML_Data_Test_Results.xls")
     write_to_book.save(TemporaryFile())
 
 def telnet_dut(clicommandData):
