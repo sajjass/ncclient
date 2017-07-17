@@ -44,11 +44,11 @@ class TestUseCase(unittest.TestCase):
                         print 'exception in getting data'
         def test_01(self):
                 if conn.connected:
-                        conn.lock(dataStores[0])     
-                        description_text = 'ncclient_' + operations[0]        
+                        conn.lock(dataStores[0])
+                        description_text = 'ncclient_' + operations[0]
                         rv = conn.edit_config(target = dataStores[0], config = configData %(operations[0], description_text))
                         conn.unlock(dataStores[0])
-                        print rv           
+                        print rv
                 else :
                         self.assertFalse(1,"Connection not established")
                         return -1
@@ -58,14 +58,14 @@ class TestUseCase(unittest.TestCase):
                 self.assertNotEqual(None, dataMatch,"running config dont match")
         def test_02(self):
                 if conn.connected:
-                        conn.lock(dataStores[0])     
+                        conn.lock(dataStores[0])
                         rv = conn.get_config(source = dataStores[0], filter = ('subtree', filterData)).data_xml
                         conn.unlock(dataStores[0])
-                        print rv           
+                        print rv
                 else :
                         self.assertFalse(1,"Connection not established")
                         return -1
-                description_text = 'ncclient_' + operations[0]        
+                description_text = 'ncclient_' + operations[0]
                 telnet.checkMode()
                 ConsoleData = telnet.runCmd(cmd="show running-config interface 0/1")
                 dataMatch =re.search(description_text, ConsoleData)
@@ -77,6 +77,6 @@ class TestUseCase(unittest.TestCase):
 
 if __name__ == '__main__':
         telnet=tlnt.telnet(host=hostinfo.telnethost, port=hostinfo.telnetport)
-        unittest.main() 
+        unittest.main()
         conn.close_session()
         telnet.close()
