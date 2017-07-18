@@ -1,4 +1,4 @@
-import telnetlib
+import telnetlib, socket
 
 class telnet():
         def __init__(self,host=None,port=23):
@@ -23,14 +23,6 @@ class telnet():
                 if self.tn.expect(['#'],2)[1]:
                      self.tn.read_very_eager()
                      self.tn.write(str(cmd)+"\n")
-                     if self.tn.read_until(['The system has unsaved changes.\
-                                        Would you like to save them now? (y/n)'], 2)[1]:
-                         self.tn.write("y\n")
-
-                     if self.tn.read_until(['Configuration Saved!\
-                                        Are you sure you would like to reset the system? (y/n)'], 2)[1]:
-                         self.tn.write("y\n")
-
                      clicommmandOutput = self.tn.read_until("#")
                      print '#############################'
                      print "CLI command : %s" % cmd

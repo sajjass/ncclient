@@ -1,12 +1,10 @@
 # !/usr/bin/python
 
-import os
+import os, socket
 import time
-
 from ncclient import manager
 from ncclient.transport import errors
 from xlrd import open_workbook
-
 import Write_Netconf_Oper_Results_to_Excel
 import hostinfo
 import tlnt
@@ -53,7 +51,10 @@ def connect(host, port, user, password):
 # Method will be called while locking the data store
 def datastore_lock(datastore):
     print '\nlocking the datastore :' + datastore
-    conn.lock(datastore)
+    try:
+        conn.lock(datastore)
+    except:
+        print "DataStore already locked. Please restart the Netconf server and then Execute the script again"
 
 # Method will be called while unlocking the data store
 def datastore_unlock(datastore):
@@ -82,12 +83,6 @@ def Netconf_Edit_Config_Operation():
 
             for datastore in dataStores:
                 try:
-                    # If the datastore is already locked by someone else session then rebooting the device
-                    if conn.locked(datastore):
-                        telnet.runCmd(cmd="reload")
-                        time.sleep(20)
-                        __name__()
-
                     # Lock the datastore until we finish using that datastore
                     datastore_lock(datastore)
 
@@ -97,6 +92,7 @@ def Netconf_Edit_Config_Operation():
                         conn.copy_config("running", "startup")
                     if datastore == "candidate":
                         conn.copy_config("running", "candidate")
+
                     for operation in operations:
                         try:
                             # Starting from row count 1. because row value 0 is left for headers.
@@ -160,6 +156,7 @@ def Netconf_Edit_Config_Operation():
                     print e.message
                     pass
 
+
 if __name__ == '__main__':
     conn = connect(hostinfo.host, hostinfo.port, hostinfo.username, hostinfo.password)
     telnet = tlnt.telnet(host=hostinfo.host)
@@ -174,5 +171,8 @@ if __name__ == '__main__':
 
     # Make sure session is closed after finishing work
     print "Closing the connection to Server...!!!"
-    conn.close_session()
+    try:
+        conn.close_session()
+    except conn.operations.OperationError as e:
+        print "Unable to Close the session"
     telnet.close()
