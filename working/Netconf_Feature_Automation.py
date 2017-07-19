@@ -1,5 +1,22 @@
 # !/usr/bin/python
 
+#########################################################################################################################################
+#                                          Algorithem to test Netconf														            #
+#########################################################################################################################################
+#1) Connect to the Netconf Server.																										#
+#2) Get the session parameters like sessionId, server capabilities, client capabilities.												#
+#3) Lock the data store. 																												#
+#3) Perform get-config operation using filter on perticular leaf/node.																	#
+#4) Perform edit-config operation on perticular leaf/node using merge, remote, replace, delete, create methods.							#
+#	Perform the get-config operation using filter for each method request and check for the same config reflecting in the CLI.			#
+#5) Change the same config in CLI and check for the same config reflecting in the Netconf Client using get-config request using filter.	#
+#6) Unlock the data store.																												#
+#7) close the session.																													#
+#																																		#
+#Note: 1) perform copy-config operation first  start working on startup and candidate datastore.										#
+#      2) Use the <commit/> operation to send the candidate datastore to running datastore.												#																								#
+#########################################################################################################################################
+
 import os, socket
 import time
 from ncclient import manager
@@ -45,7 +62,8 @@ def connect(host, port, user, password):
         # return this conn object to process edit and get operations to __main__ method
         return conn
 
-    except errors.SSHError:
+    except errors.SessionError as e:
+        print e.message
         print 'Unable to connect to host:', host, 'on port:', port
 
 # Method will be called while locking the data store
@@ -168,13 +186,13 @@ if __name__ == '__main__':
     if conn.connected:
         Netconf_Edit_Config_Operation()
     else:
-        print "Connection to Netconf server not established."
+        print "Connection to Netconf server is not Established."
 
     # Make sure session is closed after finishing work
     print "Closing the connection to Server...!!!"
     try:
         conn.close_session()
-    except conn.NCClientError as e:
+    except errors.SessionCloseError as e:
         print e.message
         print "Unable to Close the session"
     telnet.close()
