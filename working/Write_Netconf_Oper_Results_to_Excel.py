@@ -2,7 +2,7 @@ from xlrd import open_workbook
 from tempfile import TemporaryFile
 from xlwt import Workbook, easyxf
 from xlwt import Style
-import os
+import os, re
 
 row_count_to_append_result = 0
 active_sheet_name = ""
@@ -67,7 +67,17 @@ class Results:
             row.write(1, node_name, style)
             row.write(2, operation, style)
             row.write(3, dataConfig, style)
-            row.write(4, str(edit_config_response), style)
+            if re.search("error: ", str(edit_config_response)):
+                row.write(4, str(edit_config_response), Style.easyxf(
+                    'pattern: pattern solid, fore_colour red;' 'borders: left thin, right thin, top thin, bottom thin;' 'align: wrap yes'))
+            elif re.search("time out ", str(edit_config_response)):
+                row.write(4, str(edit_config_response), Style.easyxf(
+                    'pattern: pattern solid, fore_colour red;' 'borders: left thin, right thin, top thin, bottom thin;' 'align: wrap yes'))
+            elif re.search("relevant data model content already exists", str(edit_config_response)):
+                row.write(4, str(edit_config_response), Style.easyxf(
+                    'pattern: pattern solid, fore_colour red;' 'borders: left thin, right thin, top thin, bottom thin;' 'align: wrap yes'))
+            else:
+                row.write(4, str(edit_config_response), style)
             row.write(5, filterData, style)
             row.write(6, str(get_config_response_output), style)
             row.write(7, clicommandData, style)

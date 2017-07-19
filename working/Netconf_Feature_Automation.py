@@ -53,7 +53,8 @@ def datastore_lock(datastore):
     print '\nlocking the datastore :' + datastore
     try:
         conn.lock(datastore)
-    except:
+    except errors.NCClientError as e:
+        print e.message
         print "DataStore already locked. Please restart the Netconf server and then Execute the script again"
 
 # Method will be called while unlocking the data store
@@ -154,7 +155,7 @@ def Netconf_Edit_Config_Operation():
 
                 except errors.NCClientError as e:
                     print e.message
-                    pass
+                    break
 
 
 if __name__ == '__main__':
@@ -173,6 +174,7 @@ if __name__ == '__main__':
     print "Closing the connection to Server...!!!"
     try:
         conn.close_session()
-    except conn.operations.OperationError as e:
+    except conn.NCClientError as e:
+        print e.message
         print "Unable to Close the session"
     telnet.close()
